@@ -1,0 +1,12 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "rpc-response-gateway",
+  "main": "src/gateway.mjs",
+  "compatibility_date": "2026-04-09",
+  "services": [
+    {
+      "binding": "ACCOUNT",
+      "service": "rpc-response-account"
+    }
+  ]
+}

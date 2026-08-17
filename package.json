@@ -1,0 +1,13 @@
+{
+  "name": "cloudflare-miniflare-rpc-response-empty-repro",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.7.0",
+  "scripts": {
+    "test": "node --test test/repro.test.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "4.123.0"
+  }
+}

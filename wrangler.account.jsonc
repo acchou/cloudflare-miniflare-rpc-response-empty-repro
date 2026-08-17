@@ -1,0 +1,6 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "rpc-response-account",
+  "main": "src/account.mjs",
+  "compatibility_date": "2026-04-09"
+}
