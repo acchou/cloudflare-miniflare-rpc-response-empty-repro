@@ -5,7 +5,9 @@
   "type": "module",
   "packageManager": "pnpm@11.7.0",
   "scripts": {
-    "test": "node --test test/repro.test.mjs"
+    "test": "node --test test/repro.test.mjs",
+    "workerd:probe": "node workerd/probe.mjs",
+    "workerd:serve": "workerd serve workerd/config.capnp"
   },
   "devDependencies": {
     "wrangler": "4.123.0"

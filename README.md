@@ -1,63 +1,121 @@
-# Miniflare RPC `Response` body lost on POST
+# workerd drops a delayed RPC `Response` body during gzip egress
 
-This repository reproduces a local Miniflare bug with two Workers and a 12-byte
-JSON response:
+This repository reproduces a workerd regression in which a `Response` received
+over JavaScript RPC reaches the client as `200 OK` with an empty body.
 
-1. the gateway handles an incoming `POST` request;
-2. it calls a `WorkerEntrypoint` method over a service binding;
-3. that method returns `Response.json({ ok: true })`; and
-4. the gateway directly returns the RPC `Response`.
+The failure requires all three conditions:
 
-Cloudflare documents `Response` as a supported RPC value whose body is streamed to
-the recipient. Wrangler's local test harness instead returns `200 OK` with the
-`application/json` content type and an empty body for the `POST` route.
+1. a Worker receives a `Response` from a `WorkerEntrypoint` over RPC;
+2. the caller crosses an asynchronous boundary before returning that response; and
+3. workerd applies gzip compression during response egress.
 
-## Run
+Removing any one of those conditions preserves the body. Cloudflare documents
+`Response` as a supported RPC value whose body stream transfers to the recipient,
+so returning the response after another `await` is expected to work.
 
-Verified with Node.js 22.22.0 and pnpm 11.7.0 on macOS.
+## Wrangler and Miniflare reproduction
+
+Requirements: Node.js 22 or newer and pnpm 11.
 
 ```sh
 pnpm install
 pnpm test
 ```
 
-The first test is expected to fail:
+With an affected workerd build, the suite reports one expected failure and three
+passing controls:
+
+- `POST /direct` with the default `Accept-Encoding` returns gzip with an empty body;
+- `GET /direct` returns the same RPC response body;
+- `POST /direct` with `Accept-Encoding: identity` returns the body; and
+- materializing the RPC response before returning it from `POST` returns the body.
+
+The first test expresses the documented behavior, so it intentionally fails while
+the regression is present rather than asserting the empty body as correct.
+
+### Why `POST` exposes the failure locally
+
+`POST` is an indirect trigger, not the underlying condition. During local
+development, Wrangler injects `middleware-ensure-req-body-drained`, which awaits
+the unused request body in a `finally` block. Miniflare's entry Worker then selects
+gzip for compressible responses when the client accepts it. Those two development
+layers supply the asynchronous boundary and gzip conditions required by the
+workerd defect.
+
+Setting the environment variable below disables the first condition supplied by
+Wrangler and makes all four tests pass:
+
+```sh
+WRANGLER_DISABLE_REQUEST_BODY_DRAINING=1 pnpm test
+```
+
+## Pure workerd reproduction
+
+The files under [`workerd/`](workerd/) reproduce the runtime defect without
+Wrangler or Miniflare. Start workerd in one terminal:
+
+```sh
+pnpm workerd:serve
+```
+
+Then run the probe in another:
+
+```sh
+pnpm workerd:probe
+```
+
+An affected build prints:
 
 ```text
-Expected values to be strictly equal:
-
-expected the RPC Response body to be non-empty
+affected: await + gzip: status=200 encoding=gzip body=""
+control: no await: status=200 encoding=gzip body="{\"ok\":true}"
+control: no gzip: status=200 encoding=identity body="{\"ok\":true}"
 ```
 
-The controls show that both the HTTP method and direct forwarding matter:
+workerd logs the underlying error:
 
-- directly forwarding the same RPC `Response` for `GET` preserves the body;
-- reading and reconstructing the RPC `Response` before returning it for `POST`
-  preserves the body.
-
-The failing path is equivalent to:
-
-```js
-async fetch(request, env) {
-  return await env.ACCOUNT.createAuthToken();
-}
+```text
+workerd/io/external-pusher.c++:76: failed: remote.jsg.Error: ReadableStream received over RPC disconnected prematurely.
 ```
 
-where `createAuthToken()` returns `Response.json({ ok: true })` from a
-`WorkerEntrypoint`.
+## Regression range
 
-## Versions
+| Package | Version | Result |
+| --- | --- | --- |
+| workerd | `1.20260804.1` | last good tested |
+| workerd | `1.20260807.2` | first bad tested |
+| workerd | `1.20260817.1` | still affected |
+| Wrangler | `4.121.0` | passes; bundles workerd `1.20260804.1` |
+| Wrangler | `4.122.0` | fails; bundles workerd `1.20260811.1` |
+| Wrangler | `4.123.0` | fails; bundles workerd `1.20260811.1` |
 
-- Wrangler `4.123.0`
-- Miniflare `5.20260811.1-alpha` (resolved by Wrangler)
-- workerd `1.20260811.1` (resolved by Wrangler)
+The compatibility date does not control the failure. It reproduces with the
+`2026-04-09` date in this repository and with older tested dates.
 
-The bug also reproduces when `MINIFLARE_WORKERD_PATH` points to workerd
-`1.20260817.1`, so updating workerd alone does not resolve it. The original
-application route returns the complete body in the deployed Workers runtime; this
-repository isolates the local `createTestHarness()` failure.
+The original application route preserves the complete response body in the
+deployed Workers runtime. This repository isolates the local runtime regression.
 
-## Relevant documentation
+## Workarounds
 
-- <https://developers.cloudflare.com/workers/runtime-apis/rpc/#readablestream-writablestream-request-and-response>
-- <https://developers.cloudflare.com/workers/testing/integration-testing/>
+- Pin Wrangler to `4.121.0`, or point `MINIFLARE_WORKERD_PATH` to workerd
+  `1.20260804.1`.
+- Materialize the RPC response body before returning it, as the
+  `/materialized` control does.
+- For local tests, send `Accept-Encoding: identity`.
+- For local development, set `WRANGLER_DISABLE_REQUEST_BODY_DRAINING=1`. This
+  disables Wrangler's workaround for unused request bodies and should not be
+  treated as a production fix.
+- Setting `Content-Encoding: identity` on the response also avoids the affected
+  gzip path, but changes compression behavior.
+
+## Related documentation and reports
+
+No exact public report was found in the workerd or workers-sdk trackers as of
+August 17, 2026. These reports cover adjacent compression and stream-lifecycle
+behavior:
+
+- [Cloudflare RPC Request and Response documentation](https://developers.cloudflare.com/workers/runtime-apis/rpc/#readablestream-writablestream-request-and-response)
+- [Cloudflare RPC lifecycle documentation](https://developers.cloudflare.com/workers/runtime-apis/rpc/lifecycle/)
+- [workers-sdk #8004: Miniflare aggressively buffers responses](https://github.com/cloudflare/workers-sdk/issues/8004)
+- [workers-sdk #15203: request-body stream failure in local development](https://github.com/cloudflare/workers-sdk/issues/15203)
+- [workerd #2588: RPC request-stream lifecycle behavior](https://github.com/cloudflare/workerd/issues/2588)

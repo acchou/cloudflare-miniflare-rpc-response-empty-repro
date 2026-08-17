@@ -8,8 +8,4 @@ export default class AccountWorker extends WorkerEntrypoint {
   async createAuthToken() {
     return Response.json({ ok: true });
   }
-
-  async getStatus() {
-    return Response.json({ ok: true });
-  }
 }

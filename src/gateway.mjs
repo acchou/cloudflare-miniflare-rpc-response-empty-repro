@@ -8,9 +8,6 @@ export default {
       const response = await env.ACCOUNT.createAuthToken();
       return new Response(await response.arrayBuffer(), response);
     }
-    if (pathname === "/control") {
-      return await env.ACCOUNT.getStatus();
-    }
     return new Response("Not Found", { status: 404 });
   }
 };
