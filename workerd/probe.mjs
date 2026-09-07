@@ -7,8 +7,9 @@ import { gunzipSync } from "node:zlib";
 const baseUrl = process.env.REPRO_URL ?? "http://127.0.0.1:8080";
 const get = new URL(baseUrl).protocol === "https:" ? getHttps : getHttp;
 const routes = [
-  ["RPC Response survives await + gzip", "/", "gzip"],
-  ["control: no await", "/no-await", "gzip"],
+  ["RPC Response survives timer await + gzip", "/", "gzip"],
+  ["control: no additional await", "/no-await", "gzip"],
+  ["control: microtask await", "/microtask", "gzip"],
   ["control: no gzip, original Response", "/no-gzip", undefined],
   ["control: no gzip, wrapped Response", "/wrapped-no-gzip", undefined],
   ["control: no RPC", "/no-rpc", "gzip"]

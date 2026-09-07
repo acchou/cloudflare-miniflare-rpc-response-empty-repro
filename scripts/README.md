@@ -45,7 +45,7 @@ python3 scripts/matrix.py \
   --repetitions 10
 ```
 
-This sends **100 sequential requests**, with no retries: five routes × two client
+This sends **120 sequential requests**, with no retries: six routes × two client
 encodings × ten repetitions. Each request starts a fresh curl process, uses
 HTTP/1.1, and has a 20-second deadline. It preserves raw bytes before strict gzip
 decoding, including partial responses on transport or decoding failure. It checks
@@ -93,8 +93,9 @@ pnpm exec wrangler delete --config workerd/wrangler.callee.jsonc
 
 For published historical runs, see [evidence](../evidence/README.md). These scripts
 generalize the curl matrix and CF-Ray matching used there; they do not rerun or
-replace those recorded results. The matcher also accepts their older raw matrix
-format, which kept CF-Ray inside `headers`.
+replace those recorded results. The historical deployed runs used five routes;
+the added `/microtask` control has only been tested locally here. The matcher also
+accepts their older raw matrix format, which kept CF-Ray inside `headers`.
 
 To check the experiment tools themselves:
 

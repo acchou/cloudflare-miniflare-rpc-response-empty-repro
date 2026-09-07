@@ -5,7 +5,9 @@ export default {
       ? Response.json({ ok: true })
       : await env.CALLEE.getJson();
 
-    if (pathname !== "/no-await") {
+    if (pathname === "/microtask") {
+      await Promise.resolve();
+    } else if (pathname !== "/no-await") {
       await new Promise(resolve => setTimeout(resolve, 0));
     }
 

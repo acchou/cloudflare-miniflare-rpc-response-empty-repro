@@ -116,7 +116,7 @@ class ExperimentTests(unittest.TestCase):
             ], capture_output=True, text=True)
             self.assertEqual(result.returncode, 1, result.stderr)
             rows = json.loads(output.read_text())["rows"]
-            self.assertEqual(len(rows), 10)
+            self.assertEqual(len(rows), 12)
             self.assertEqual(sum(not r["passed"] for r in rows), 2)
             self.assertEqual({r["acceptEncoding"] for r in rows}, {"gzip", "identity"})
 

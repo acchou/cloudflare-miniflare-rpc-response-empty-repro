@@ -11,7 +11,7 @@ import tempfile
 import zlib
 from urllib.parse import urlsplit
 
-ROUTES = ["/", "/no-await", "/no-gzip", "/wrapped-no-gzip", "/no-rpc"]
+ROUTES = ["/", "/no-await", "/microtask", "/no-gzip", "/wrapped-no-gzip", "/no-rpc"]
 
 
 def request(url, route, accept):

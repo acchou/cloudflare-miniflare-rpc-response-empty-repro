@@ -1,0 +1,560 @@
+{
+  "testedAt": "2026-09-07",
+  "platform": "macOS ARM64",
+  "compatibilityDate": "2026-04-09",
+  "acceptEncoding": "gzip",
+  "requestsPerCase": 5,
+  "notes": [
+    "Published runtime binaries; a separate process per route and await variant.",
+    "Timer cases used the five-route caller before /microtask was added. Other cases changed only the additional await on /.",
+    "All five responses in each original await-variant case had identical status, encoding, wire bytes and pass result.",
+    "Local observations only; no patched runtime or deployment was tested in this comparison.",
+    "routeChecks records a subsequent run of the six-route caller, including /microtask: five requests per route in separate processes, using the same date and client encoding."
+  ],
+  "cases": [
+    {
+      "runtime": "1.20260804.1",
+      "await": "timer",
+      "route": "/",
+      "streamErrors": 0,
+      "requests": 5,
+      "intactBodies": 5,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "wireBytes": 31,
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260804.1",
+      "await": "timer",
+      "route": "/no-await",
+      "streamErrors": 0,
+      "requests": 5,
+      "intactBodies": 5,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "wireBytes": 31,
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260804.1",
+      "await": "timer",
+      "route": "/no-gzip",
+      "streamErrors": 0,
+      "requests": 5,
+      "intactBodies": 5,
+      "sample": {
+        "status": 200,
+        "encoding": null,
+        "wireHex": "7b226f6b223a747275657d",
+        "wireBytes": 11,
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260804.1",
+      "await": "timer",
+      "route": "/wrapped-no-gzip",
+      "streamErrors": 0,
+      "requests": 5,
+      "intactBodies": 5,
+      "sample": {
+        "status": 200,
+        "encoding": null,
+        "wireHex": "7b226f6b223a747275657d",
+        "wireBytes": 11,
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260804.1",
+      "await": "timer",
+      "route": "/no-rpc",
+      "streamErrors": 0,
+      "requests": 5,
+      "intactBodies": 5,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "wireBytes": 31,
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260906.1",
+      "await": "timer",
+      "route": "/",
+      "streamErrors": 5,
+      "requests": 5,
+      "intactBodies": 0,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireHex": "1f8b0800000000000013",
+        "wireBytes": 10,
+        "passed": false,
+        "error": "Compressed file ended before the end-of-stream marker was reached"
+      }
+    },
+    {
+      "runtime": "1.20260906.1",
+      "await": "timer",
+      "route": "/no-await",
+      "streamErrors": 0,
+      "requests": 5,
+      "intactBodies": 5,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "wireBytes": 31,
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260906.1",
+      "await": "timer",
+      "route": "/no-gzip",
+      "streamErrors": 5,
+      "requests": 5,
+      "intactBodies": 5,
+      "sample": {
+        "status": 200,
+        "encoding": null,
+        "wireHex": "7b226f6b223a747275657d",
+        "wireBytes": 11,
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260906.1",
+      "await": "timer",
+      "route": "/wrapped-no-gzip",
+      "streamErrors": 5,
+      "requests": 5,
+      "intactBodies": 5,
+      "sample": {
+        "status": 200,
+        "encoding": null,
+        "wireHex": "7b226f6b223a747275657d",
+        "wireBytes": 11,
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260906.1",
+      "await": "timer",
+      "route": "/no-rpc",
+      "streamErrors": 0,
+      "requests": 5,
+      "intactBodies": 5,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "wireBytes": 31,
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260907.1",
+      "await": "timer",
+      "route": "/",
+      "streamErrors": 5,
+      "requests": 5,
+      "intactBodies": 0,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireHex": "1f8b0800000000000013",
+        "wireBytes": 10,
+        "passed": false,
+        "error": "Compressed file ended before the end-of-stream marker was reached"
+      }
+    },
+    {
+      "runtime": "1.20260907.1",
+      "await": "timer",
+      "route": "/no-await",
+      "streamErrors": 0,
+      "requests": 5,
+      "intactBodies": 5,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "wireBytes": 31,
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260907.1",
+      "await": "timer",
+      "route": "/no-gzip",
+      "streamErrors": 5,
+      "requests": 5,
+      "intactBodies": 5,
+      "sample": {
+        "status": 200,
+        "encoding": null,
+        "wireHex": "7b226f6b223a747275657d",
+        "wireBytes": 11,
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260907.1",
+      "await": "timer",
+      "route": "/wrapped-no-gzip",
+      "streamErrors": 5,
+      "requests": 5,
+      "intactBodies": 5,
+      "sample": {
+        "status": 200,
+        "encoding": null,
+        "wireHex": "7b226f6b223a747275657d",
+        "wireBytes": 11,
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260907.1",
+      "await": "timer",
+      "route": "/no-rpc",
+      "streamErrors": 0,
+      "requests": 5,
+      "intactBodies": 5,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "wireBytes": 31,
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260907.1",
+      "await": "none",
+      "route": "/",
+      "streamErrors": 0,
+      "requests": 5,
+      "intactBodies": 5,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "wireBytes": 31,
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260907.1",
+      "await": "microtask",
+      "route": "/",
+      "streamErrors": 0,
+      "requests": 5,
+      "intactBodies": 5,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "wireBytes": 31,
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260907.1",
+      "await": "microtasks10",
+      "route": "/",
+      "streamErrors": 0,
+      "requests": 5,
+      "intactBodies": 5,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "wireBytes": 31,
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260907.1",
+      "await": "scheduler",
+      "route": "/",
+      "streamErrors": 5,
+      "requests": 5,
+      "intactBodies": 0,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireHex": "1f8b0800000000000013",
+        "wireBytes": 10,
+        "passed": false,
+        "error": "Compressed file ended before the end-of-stream marker was reached"
+      }
+    }
+  ],
+  "routeChecks": [
+    {
+      "runtime": "1.20260804.1",
+      "route": "/",
+      "requests": 5,
+      "intactBodies": 5,
+      "streamErrors": 0,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 31,
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260804.1",
+      "route": "/no-await",
+      "requests": 5,
+      "intactBodies": 5,
+      "streamErrors": 0,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 31,
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260804.1",
+      "route": "/microtask",
+      "requests": 5,
+      "intactBodies": 5,
+      "streamErrors": 0,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 31,
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260804.1",
+      "route": "/no-gzip",
+      "requests": 5,
+      "intactBodies": 5,
+      "streamErrors": 0,
+      "sample": {
+        "status": 200,
+        "encoding": null,
+        "wireBytes": 11,
+        "wireHex": "7b226f6b223a747275657d",
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260804.1",
+      "route": "/wrapped-no-gzip",
+      "requests": 5,
+      "intactBodies": 5,
+      "streamErrors": 0,
+      "sample": {
+        "status": 200,
+        "encoding": null,
+        "wireBytes": 11,
+        "wireHex": "7b226f6b223a747275657d",
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260804.1",
+      "route": "/no-rpc",
+      "requests": 5,
+      "intactBodies": 5,
+      "streamErrors": 0,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 31,
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260906.1",
+      "route": "/",
+      "requests": 5,
+      "intactBodies": 0,
+      "streamErrors": 5,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 10,
+        "wireHex": "1f8b0800000000000013",
+        "passed": false,
+        "error": "Compressed file ended before the end-of-stream marker was reached"
+      }
+    },
+    {
+      "runtime": "1.20260906.1",
+      "route": "/no-await",
+      "requests": 5,
+      "intactBodies": 5,
+      "streamErrors": 0,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 31,
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260906.1",
+      "route": "/microtask",
+      "requests": 5,
+      "intactBodies": 5,
+      "streamErrors": 0,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 31,
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260906.1",
+      "route": "/no-gzip",
+      "requests": 5,
+      "intactBodies": 5,
+      "streamErrors": 5,
+      "sample": {
+        "status": 200,
+        "encoding": null,
+        "wireBytes": 11,
+        "wireHex": "7b226f6b223a747275657d",
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260906.1",
+      "route": "/wrapped-no-gzip",
+      "requests": 5,
+      "intactBodies": 5,
+      "streamErrors": 5,
+      "sample": {
+        "status": 200,
+        "encoding": null,
+        "wireBytes": 11,
+        "wireHex": "7b226f6b223a747275657d",
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260906.1",
+      "route": "/no-rpc",
+      "requests": 5,
+      "intactBodies": 5,
+      "streamErrors": 0,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 31,
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260907.1",
+      "route": "/",
+      "requests": 5,
+      "intactBodies": 0,
+      "streamErrors": 5,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 10,
+        "wireHex": "1f8b0800000000000013",
+        "passed": false,
+        "error": "Compressed file ended before the end-of-stream marker was reached"
+      }
+    },
+    {
+      "runtime": "1.20260907.1",
+      "route": "/no-await",
+      "requests": 5,
+      "intactBodies": 5,
+      "streamErrors": 0,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 31,
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260907.1",
+      "route": "/microtask",
+      "requests": 5,
+      "intactBodies": 5,
+      "streamErrors": 0,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 31,
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260907.1",
+      "route": "/no-gzip",
+      "requests": 5,
+      "intactBodies": 5,
+      "streamErrors": 5,
+      "sample": {
+        "status": 200,
+        "encoding": null,
+        "wireBytes": 11,
+        "wireHex": "7b226f6b223a747275657d",
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260907.1",
+      "route": "/wrapped-no-gzip",
+      "requests": 5,
+      "intactBodies": 5,
+      "streamErrors": 5,
+      "sample": {
+        "status": 200,
+        "encoding": null,
+        "wireBytes": 11,
+        "wireHex": "7b226f6b223a747275657d",
+        "passed": true
+      }
+    },
+    {
+      "runtime": "1.20260907.1",
+      "route": "/no-rpc",
+      "requests": 5,
+      "intactBodies": 5,
+      "streamErrors": 0,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 31,
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "passed": true
+      }
+    }
+  ]
+}

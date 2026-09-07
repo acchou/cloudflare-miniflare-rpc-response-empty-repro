@@ -1,12 +1,12 @@
-# RPC Response bodies truncate when Workers applies gzip
+# RPC Response streaming: premature disconnects and truncated bodies
 
-A Worker receives **plain JSON over RPC**, waits once, and sets
+A Worker receives **plain JSON over RPC**, awaits a zero-delay timer, and sets
 `Content-Encoding: gzip` on its outgoing Response. Cloudflare's runtime is asked
 to compress that body; the example is not forwarding already compressed bytes.
 The client can receive **HTTP 200 with only a gzip header or an empty body**.
 
-Reproduced consistently in local workerd `1.20260906.1`, and intermittently on
-deployed Workers on September 7, 2026. Removing the Worker's gzip header preserved
+Reproduced consistently in local workerd `1.20260906.1` (pinned here) and
+`1.20260907.1`, and intermittently on deployed Workers on September 7, 2026. Removing the Worker's gzip header preserved
 the body in every tested case, but **RPC stream exceptions still occurred**.
 Wrapping the response without gzip did not eliminate those exceptions.
 
@@ -28,7 +28,7 @@ In another terminal:
 pnpm workerd:probe
 ```
 
-**Expected on the pinned runtime: exit 1, one failing body assertion and four
+**Expected on the pinned runtime: exit 1, one failing body assertion and five
 passing controls.** These tests assert correct behavior, so reproducing the bug
 fails the test. The failure is strict gzip decompression of an incomplete stream.
 
@@ -60,18 +60,23 @@ return response;
 Cloudflare documents [Responses and streams over RPC](https://developers.cloudflare.com/workers/runtime-apis/rpc/#readablestream-writeablestream-request-and-response),
 with ownership transferred to the receiver, and [automatic Response encoding](https://developers.cloudflare.com/workers/runtime-apis/response/#parameters)
 according to `Content-Encoding`. The example does not read, cancel, or dispose the
-received body. The timer makes an asynchronous boundary explicit.
+received body. The timer yields to the event loop. In the tested variants,
+`await Promise.resolve()` did not trigger the failure; the additional await alone
+is not a sufficient description of the trigger.
 
-| Route | RPC | Timer await | Wrap Response | Set gzip header | Local body |
+| Route | RPC | Additional await | Wrap Response | Set gzip header | Local body |
 | --- | --- | --- | --- | --- | --- |
-| `/` | Yes | Yes | Yes | Yes | Truncated |
-| `/no-await` | Yes | No | Yes | Yes | Complete |
-| `/no-gzip` | Yes | Yes | No | No | Complete |
-| `/wrapped-no-gzip` | Yes | Yes | Yes | No | Complete |
-| `/no-rpc` | No | Yes | Yes | Yes | Complete |
+| `/` | Yes | Timer | Yes | Yes | Truncated |
+| `/no-await` | Yes | None | Yes | Yes | Complete |
+| `/microtask` | Yes | `Promise.resolve()` | Yes | Yes | Complete |
+| `/no-gzip` | Yes | Timer | No | No | Complete |
+| `/wrapped-no-gzip` | Yes | Timer | Yes | No | Complete |
+| `/no-rpc` | No | Timer | Yes | Yes | Complete |
 
 Compare `/no-gzip` with `/wrapped-no-gzip` to isolate wrapping. Compare
-`/wrapped-no-gzip` with `/` to isolate setting the gzip header.
+`/wrapped-no-gzip` with `/` to isolate setting the gzip header. `/microtask`
+keeps an additional await while replacing the timer with an already resolved
+promise.
 
 Locally, the failed response contains just these 10 bytes:
 
@@ -88,14 +93,20 @@ strict decoder. workerd also reports:
 ReadableStream received over RPC disconnected prematurely.
 ```
 
-Both no-gzip variants also logged that error despite complete bodies. The exact
-runtime cause, and whether these two symptoms share it, remain unresolved.
+Both no-gzip variants also logged that error despite complete bodies.
+A [likely mechanism in the RPC stream completion bookkeeping](evidence/source-analysis.md)
+fits both symptoms. That analysis is based on source inspection and runtime
+comparisons; a patched runtime has not been built or tested here.
+
+A [report draft](REPORT.md) collects the reproduction, observed impact, and this
+possible explanation for upstream review.
 
 ## Deployed result
 
 The primary deployed comparison used 200 requests through SJC: 10 per route,
 client encoding (`gzip` or `identity`), and compatibility date (`2026-04-09` or
-`2026-09-06`). Every HTTP status was 200.
+`2026-09-06`). Every HTTP status was 200. This comparison predates the
+`/microtask` route; that control has only been tested locally here.
 
 | Route | Complete bodies | Captured Worker outcomes |
 | --- | --- | --- |
