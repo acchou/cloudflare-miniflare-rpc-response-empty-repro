@@ -17,7 +17,7 @@ before(async () => {
 });
 
 after(async () => {
-  await harness.close();
+  await harness?.close();
 });
 
 test("directly forwards an RPC Response body for POST", async () => {

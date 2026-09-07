@@ -1,21 +1,48 @@
+import assert from "node:assert/strict";
+import { get } from "node:http";
+import { test } from "node:test";
+import { gunzipSync } from "node:zlib";
+
+const baseUrl = process.env.REPRO_URL ?? "http://127.0.0.1:8080";
 const routes = [
-  ["affected: await + gzip", "/"],
-  ["control: no await", "/no-await"],
-  ["control: no gzip", "/no-gzip"]
+  ["RPC Response survives await + gzip", "/", "gzip"],
+  ["control: no await", "/no-await", "gzip"],
+  ["control: no gzip", "/no-gzip", undefined],
+  ["control: no RPC", "/no-rpc", "gzip"]
 ];
 
-let observedFailure = false;
-for (const [label, pathname] of routes) {
-  const response = await fetch(new URL(pathname, "http://127.0.0.1:8080"));
-  const body = await response.text();
-  console.log(
-    `${label}: status=${response.status} encoding=${response.headers.get("content-encoding") ?? "identity"} body=${JSON.stringify(body)}`
-  );
-  if (pathname === "/" && response.status === 200 && body === "") {
-    observedFailure = true;
-  }
-}
+for (const [label, pathname, expectedEncoding] of routes) {
+  test(label, async t => {
+    // node:http preserves compressed bytes; fetch can expose truncated gzip as
+    // an empty body. Strict decompression also checks the gzip trailer.
+    const { status, encoding, raw } = await new Promise((resolve, reject) => {
+      const request = get(new URL(pathname, baseUrl), {
+        headers: { "Accept-Encoding": "gzip" },
+        // Keep a broken response's connection out of subsequent control cases.
+        agent: false,
+        signal: AbortSignal.timeout(10_000)
+      }, response => {
+        const chunks = [];
+        response.on("data", chunk => chunks.push(chunk));
+        response.on("error", reject);
+        response.on("end", () => resolve({
+          status: response.statusCode,
+          encoding: response.headers["content-encoding"],
+          raw: Buffer.concat(chunks)
+        }));
+      });
+      request.on("error", reject);
+    });
 
-if (!observedFailure) {
-  console.log("The affected route retained its body; this workerd build is not affected.");
+    t.diagnostic(JSON.stringify({
+      status,
+      encoding: encoding ?? "identity",
+      wireBytes: raw.length,
+      wireHex: raw.toString("hex")
+    }));
+    assert.equal(status, 200);
+    assert.equal(encoding, expectedEncoding);
+    const body = encoding === "gzip" ? gunzipSync(raw) : raw;
+    assert.deepEqual(JSON.parse(body.toString("utf8")), { ok: true });
+  });
 }

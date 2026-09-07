@@ -1,7 +1,9 @@
 export default {
   async fetch(request, env) {
     const pathname = new URL(request.url).pathname;
-    let response = await env.CALLEE.getJson();
+    let response = pathname === "/no-rpc"
+      ? Response.json({ ok: true })
+      : await env.CALLEE.getJson();
 
     if (pathname !== "/no-await") {
       await new Promise(resolve => setTimeout(resolve, 0));

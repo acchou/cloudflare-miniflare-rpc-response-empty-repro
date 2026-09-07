@@ -6,10 +6,11 @@
   "packageManager": "pnpm@11.7.0",
   "scripts": {
     "test": "node --test test/repro.test.mjs",
-    "workerd:probe": "node workerd/probe.mjs",
+    "workerd:probe": "node --test workerd/probe.mjs",
     "workerd:serve": "workerd serve workerd/config.capnp"
   },
   "devDependencies": {
-    "wrangler": "4.123.0"
+    "workerd": "1.20260906.1",
+    "wrangler": "4.129.0"
   }
 }

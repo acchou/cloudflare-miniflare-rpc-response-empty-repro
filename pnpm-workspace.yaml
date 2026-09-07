@@ -1,3 +1,11 @@
 allowBuilds:
   esbuild: true
   workerd: true
+# Allow only the exact newly released runtime versions used by this reproduction.
+minimumReleaseAgeExclude:
+  - '@cloudflare/workerd-darwin-64@1.20260906.1'
+  - '@cloudflare/workerd-darwin-arm64@1.20260906.1'
+  - '@cloudflare/workerd-linux-64@1.20260906.1'
+  - '@cloudflare/workerd-linux-arm64@1.20260906.1'
+  - '@cloudflare/workerd-windows-64@1.20260906.1'
+  - workerd@1.20260906.1
