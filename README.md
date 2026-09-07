@@ -4,9 +4,13 @@ A Worker receives a `Response` over RPC, waits once, and returns it with gzip
 compression. The client receives **HTTP 200 with an incomplete gzip stream**.
 In Node's `fetch`, this appears as an empty body. A strict gzip decoder rejects it.
 
-**Still reproduced on September 6, 2026:** workerd `1.20260906.1` and Wrangler
-`4.129.0`. This repo pins those versions. It runs locally with no Cloudflare
+**Still reproduced locally on September 6, 2026:** workerd `1.20260906.1` and
+Wrangler `4.129.0`. This repo pins those versions. Local tests need no Cloudflare
 account, credentials, deployment, or application dependencies.
+
+**Deployed experiments now completed:** all 160 HTTPS responses were intact, but
+40 `/no-gzip` invocations logged an RPC-stream exception. See
+[deployed results](#deployed-workers-experiment).
 
 ## Quick reproduction with Wrangler
 
@@ -45,7 +49,7 @@ does not resolve the failure.
 Wrangler adds request-body-draining middleware that performs an extra `await`
 before returning a non-GET response. Miniflare supplies automatic gzip compression.
 Together, these expose the underlying runtime defect. POST itself is not required:
-the pure-workerd example below fails on GET with an explicit timer await.
+the local pure-workerd example below fails on GET with an explicit timer await.
 
 ## Pure-workerd reproduction
 
@@ -146,10 +150,94 @@ with ownership transferred to the recipient. It also documents that
 setting `Content-Encoding: gzip` asks the runtime to compress the body. The example
 uses those APIs without consuming, canceling, or disposing the received body.
 
-The confirmed scope is **local workerd and Wrangler**. Current deployed Workers
-behavior has not been tested here. Do not infer production exposure or a production
-fix from this local result. Targeted upstream issue/PR searches on September 6
-found no exact match; that is not proof no related report exists.
+The **truncated-body failure is reproduced locally**. The deployed experiment
+below returned complete bodies on every request, but reported stream exceptions
+on `/no-gzip`. These are distinct observed behaviors; the identical error text
+does not establish an identical root cause. Targeted upstream searches on
+September 6 found no exact report.
+
+## Deployed Workers experiment
+
+Tested September 7, 2026 UTC (September 6 Pacific) through the SJC edge. Two
+isolated Workers ran the same `workerd/caller.mjs` and `workerd/callee.mjs`, with
+no storage, application bindings, or secrets. A 404 fetch handler was added to
+the callee because deployment requires an event handler; its RPC method is unchanged.
+Both Workers were tested with compatibility dates `2026-04-09` and `2026-09-06`,
+with no compatibility flags. Cloudflare manages the deployed runtime build;
+these dates and the recorded deployment version IDs do not identify a workerd binary.
+
+For each date: 10 sequential requests per route with `Accept-Encoding: gzip`,
+and 10 with `Accept-Encoding: identity`. curl preserved the compressed body;
+strict gzip decompression and exact JSON equality checked the response. Every
+request was matched to its Worker tail event using CF-Ray.
+
+| Route | Complete HTTP 200 bodies | Worker outcomes |
+| --- | --- | --- |
+| `/` (RPC + await + gzip) | 40/40 | 40 `ok` |
+| `/no-await` | 40/40 | 40 `ok` |
+| `/no-gzip` | 40/40 | 40 `exception` |
+| `/no-rpc` | 40/40 | 40 `ok` |
+
+For gzip requests, `/`, `/no-await`, and `/no-rpc` returned valid 31-byte gzip
+streams; `/no-gzip` returned 11 uncompressed bytes. Identity requests returned
+11 uncompressed bytes on all routes. Every decoded body was `{"ok":true}`.
+Every `/no-gzip` exception was:
+
+```text
+ReadableStream received over RPC disconnected prematurely.
+```
+
+Therefore, **the local empty-body symptom did not reproduce on deployed Workers
+in this experiment, while a stream exception did**. Successful client responses
+alone would have missed that second result. This is evidence for the tested
+11-byte payload, routes, dates, and region, not a claim about all deployed workloads.
+
+[Sanitized results](evidence/deployed-2026-09-07.json) include counts, raw-byte
+samples, correlated request IDs, and deployment version IDs. Preliminary Python
+HTTP-client requests received edge rejection code 1010 before reaching the Worker;
+those requests are excluded. Both temporary Workers were removed after testing.
+
+### Repeat on your Cloudflare account
+
+Deployment requires authentication. Choose unused names in the two configs below
+and update the caller's `CALLEE` service reference to match. The callee has no
+public URL; only the caller is exposed on workers.dev.
+
+```sh
+pnpm exec wrangler whoami
+pnpm exec wrangler deploy --config workerd/wrangler.callee.jsonc
+pnpm exec wrangler deploy --config workerd/wrangler.caller.jsonc
+```
+
+Start a tail before probing, using the caller name from its config:
+
+```sh
+pnpm exec wrangler tail rpc-gzip-repro-caller --format json
+```
+
+In another terminal, use the HTTPS URL printed by deployment:
+
+```sh
+REPRO_URL=https://YOUR-CALLER.YOUR-SUBDOMAIN.workers.dev pnpm workerd:probe
+```
+
+The current deployed result is **all four client assertions pass**, while the
+`/no-gzip` tail event reports an exception. Keep the tail output when reporting
+results. The probe explicitly requests gzip; to inspect the identity control:
+
+```sh
+curl --http1.1 -i -H 'Accept-Encoding: identity' \
+  https://YOUR-CALLER.YOUR-SUBDOMAIN.workers.dev/no-gzip
+```
+
+To compare dates, deploy **both** Workers again with
+`--compatibility-date 2026-09-06` and repeat. Remove the caller first, then its
+RPC dependency, when finished:
+
+```sh
+pnpm exec wrangler delete --config workerd/wrangler.caller.jsonc
+pnpm exec wrangler delete --config workerd/wrangler.callee.jsonc
+```
 
 ## Workarounds and tradeoffs
 

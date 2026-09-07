@@ -1,0 +1,443 @@
+{
+  "testedAtUtc": "2026-09-07",
+  "wrangler": "4.129.0",
+  "region": "SJC",
+  "requestsPerCase": 10,
+  "httpProtocol": "HTTP/1.1",
+  "notes": [
+    "Each response was joined to its Worker tail event by CF-Ray.",
+    "Only the deployment experiment Workers were used; no application services or storage were bound.",
+    "Python-client edge-rejected requests and exploratory requests are excluded.",
+    "The deployed runtime build is managed by Cloudflare and was not identified."
+  ],
+  "deployments": [
+    {
+      "compatibilityDate": "2026-04-09",
+      "compatibilityFlags": [],
+      "versions": {
+        "caller": "7784f3c3-18ff-4e8b-a34a-52affe02fa8b",
+        "callee": "da62de9b-db20-49a4-9ca8-30fd0dd3999e"
+      },
+      "cases": [
+        {
+          "route": "/",
+          "acceptEncoding": "gzip",
+          "responses": 10,
+          "intactBodies": 10,
+          "httpStatuses": {
+            "200": 10
+          },
+          "contentEncodings": {
+            "gzip": 10
+          },
+          "wireByteCounts": {
+            "31": 10
+          },
+          "workerOutcomes": {
+            "ok": 10
+          },
+          "exceptions": {},
+          "sample": {
+            "time": "2026-09-07T01:19:45.996867+00:00",
+            "cfRay": "a371e319cfd0ae00-SJC",
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "decodedBody": "{\"ok\":true}"
+          }
+        },
+        {
+          "route": "/no-await",
+          "acceptEncoding": "gzip",
+          "responses": 10,
+          "intactBodies": 10,
+          "httpStatuses": {
+            "200": 10
+          },
+          "contentEncodings": {
+            "gzip": 10
+          },
+          "wireByteCounts": {
+            "31": 10
+          },
+          "workerOutcomes": {
+            "ok": 10
+          },
+          "exceptions": {},
+          "sample": {
+            "time": "2026-09-07T01:19:46.313643+00:00",
+            "cfRay": "a371e31b58be5c22-SJC",
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "decodedBody": "{\"ok\":true}"
+          }
+        },
+        {
+          "route": "/no-gzip",
+          "acceptEncoding": "gzip",
+          "responses": 10,
+          "intactBodies": 10,
+          "httpStatuses": {
+            "200": 10
+          },
+          "contentEncodings": {
+            "identity": 10
+          },
+          "wireByteCounts": {
+            "11": 10
+          },
+          "workerOutcomes": {
+            "exception": 10
+          },
+          "exceptions": {
+            "ReadableStream received over RPC disconnected prematurely.": 10
+          },
+          "sample": {
+            "time": "2026-09-07T01:19:46.467646+00:00",
+            "cfRay": "a371e31cddf1f591-SJC",
+            "wireHex": "7b226f6b223a747275657d",
+            "decodedBody": "{\"ok\":true}"
+          }
+        },
+        {
+          "route": "/no-rpc",
+          "acceptEncoding": "gzip",
+          "responses": 10,
+          "intactBodies": 10,
+          "httpStatuses": {
+            "200": 10
+          },
+          "contentEncodings": {
+            "gzip": 10
+          },
+          "wireByteCounts": {
+            "31": 10
+          },
+          "workerOutcomes": {
+            "ok": 10
+          },
+          "exceptions": {},
+          "sample": {
+            "time": "2026-09-07T01:19:46.692719+00:00",
+            "cfRay": "a371e31dbdfafdda-SJC",
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "decodedBody": "{\"ok\":true}"
+          }
+        },
+        {
+          "route": "/",
+          "acceptEncoding": "identity",
+          "responses": 10,
+          "intactBodies": 10,
+          "httpStatuses": {
+            "200": 10
+          },
+          "contentEncodings": {
+            "identity": 10
+          },
+          "wireByteCounts": {
+            "11": 10
+          },
+          "workerOutcomes": {
+            "ok": 10
+          },
+          "exceptions": {},
+          "sample": {
+            "time": "2026-09-07T01:19:46.804660+00:00",
+            "cfRay": "a371e31e6e5b55c2-SJC",
+            "wireHex": "7b226f6b223a747275657d",
+            "decodedBody": "{\"ok\":true}"
+          }
+        },
+        {
+          "route": "/no-await",
+          "acceptEncoding": "identity",
+          "responses": 10,
+          "intactBodies": 10,
+          "httpStatuses": {
+            "200": 10
+          },
+          "contentEncodings": {
+            "identity": 10
+          },
+          "wireByteCounts": {
+            "11": 10
+          },
+          "workerOutcomes": {
+            "ok": 10
+          },
+          "exceptions": {},
+          "sample": {
+            "time": "2026-09-07T01:19:46.921492+00:00",
+            "cfRay": "a371e31f2d883451-SJC",
+            "wireHex": "7b226f6b223a747275657d",
+            "decodedBody": "{\"ok\":true}"
+          }
+        },
+        {
+          "route": "/no-gzip",
+          "acceptEncoding": "identity",
+          "responses": 10,
+          "intactBodies": 10,
+          "httpStatuses": {
+            "200": 10
+          },
+          "contentEncodings": {
+            "identity": 10
+          },
+          "wireByteCounts": {
+            "11": 10
+          },
+          "workerOutcomes": {
+            "exception": 10
+          },
+          "exceptions": {
+            "ReadableStream received over RPC disconnected prematurely.": 10
+          },
+          "sample": {
+            "time": "2026-09-07T01:19:47.045484+00:00",
+            "cfRay": "a371e3207b075bc0-SJC",
+            "wireHex": "7b226f6b223a747275657d",
+            "decodedBody": "{\"ok\":true}"
+          }
+        },
+        {
+          "route": "/no-rpc",
+          "acceptEncoding": "identity",
+          "responses": 10,
+          "intactBodies": 10,
+          "httpStatuses": {
+            "200": 10
+          },
+          "contentEncodings": {
+            "identity": 10
+          },
+          "wireByteCounts": {
+            "11": 10
+          },
+          "workerOutcomes": {
+            "ok": 10
+          },
+          "exceptions": {},
+          "sample": {
+            "time": "2026-09-07T01:19:47.275642+00:00",
+            "cfRay": "a371e3215e4bfb40-SJC",
+            "wireHex": "7b226f6b223a747275657d",
+            "decodedBody": "{\"ok\":true}"
+          }
+        }
+      ]
+    },
+    {
+      "compatibilityDate": "2026-09-06",
+      "compatibilityFlags": [],
+      "versions": {
+        "caller": "e044597d-d3dd-4124-8575-98d7924d2a69",
+        "callee": "20058929-6c3f-446d-b641-6c01ccf9246e"
+      },
+      "cases": [
+        {
+          "route": "/",
+          "acceptEncoding": "gzip",
+          "responses": 10,
+          "intactBodies": 10,
+          "httpStatuses": {
+            "200": 10
+          },
+          "contentEncodings": {
+            "gzip": 10
+          },
+          "wireByteCounts": {
+            "31": 10
+          },
+          "workerOutcomes": {
+            "ok": 10
+          },
+          "exceptions": {},
+          "sample": {
+            "time": "2026-09-07T01:22:05.503253+00:00",
+            "cfRay": "a371e6816e12172e-SJC",
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "decodedBody": "{\"ok\":true}"
+          }
+        },
+        {
+          "route": "/no-await",
+          "acceptEncoding": "gzip",
+          "responses": 10,
+          "intactBodies": 10,
+          "httpStatuses": {
+            "200": 10
+          },
+          "contentEncodings": {
+            "gzip": 10
+          },
+          "wireByteCounts": {
+            "31": 10
+          },
+          "workerOutcomes": {
+            "ok": 10
+          },
+          "exceptions": {},
+          "sample": {
+            "time": "2026-09-07T01:22:05.690147+00:00",
+            "cfRay": "a371e6827c633451-SJC",
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "decodedBody": "{\"ok\":true}"
+          }
+        },
+        {
+          "route": "/no-gzip",
+          "acceptEncoding": "gzip",
+          "responses": 10,
+          "intactBodies": 10,
+          "httpStatuses": {
+            "200": 10
+          },
+          "contentEncodings": {
+            "identity": 10
+          },
+          "wireByteCounts": {
+            "11": 10
+          },
+          "workerOutcomes": {
+            "exception": 10
+          },
+          "exceptions": {
+            "ReadableStream received over RPC disconnected prematurely.": 10
+          },
+          "sample": {
+            "time": "2026-09-07T01:22:05.808799+00:00",
+            "cfRay": "a371e6832b50b8b6-SJC",
+            "wireHex": "7b226f6b223a747275657d",
+            "decodedBody": "{\"ok\":true}"
+          }
+        },
+        {
+          "route": "/no-rpc",
+          "acceptEncoding": "gzip",
+          "responses": 10,
+          "intactBodies": 10,
+          "httpStatuses": {
+            "200": 10
+          },
+          "contentEncodings": {
+            "gzip": 10
+          },
+          "wireByteCounts": {
+            "31": 10
+          },
+          "workerOutcomes": {
+            "ok": 10
+          },
+          "exceptions": {},
+          "sample": {
+            "time": "2026-09-07T01:22:05.940242+00:00",
+            "cfRay": "a371e6847e216af7-SJC",
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "decodedBody": "{\"ok\":true}"
+          }
+        },
+        {
+          "route": "/",
+          "acceptEncoding": "identity",
+          "responses": 10,
+          "intactBodies": 10,
+          "httpStatuses": {
+            "200": 10
+          },
+          "contentEncodings": {
+            "identity": 10
+          },
+          "wireByteCounts": {
+            "11": 10
+          },
+          "workerOutcomes": {
+            "ok": 10
+          },
+          "exceptions": {},
+          "sample": {
+            "time": "2026-09-07T01:22:06.126478+00:00",
+            "cfRay": "a371e6851bda98ce-SJC",
+            "wireHex": "7b226f6b223a747275657d",
+            "decodedBody": "{\"ok\":true}"
+          }
+        },
+        {
+          "route": "/no-await",
+          "acceptEncoding": "identity",
+          "responses": 10,
+          "intactBodies": 10,
+          "httpStatuses": {
+            "200": 10
+          },
+          "contentEncodings": {
+            "identity": 10
+          },
+          "wireByteCounts": {
+            "11": 10
+          },
+          "workerOutcomes": {
+            "ok": 10
+          },
+          "exceptions": {},
+          "sample": {
+            "time": "2026-09-07T01:22:06.235000+00:00",
+            "cfRay": "a371e685db1335d6-SJC",
+            "wireHex": "7b226f6b223a747275657d",
+            "decodedBody": "{\"ok\":true}"
+          }
+        },
+        {
+          "route": "/no-gzip",
+          "acceptEncoding": "identity",
+          "responses": 10,
+          "intactBodies": 10,
+          "httpStatuses": {
+            "200": 10
+          },
+          "contentEncodings": {
+            "identity": 10
+          },
+          "wireByteCounts": {
+            "11": 10
+          },
+          "workerOutcomes": {
+            "exception": 10
+          },
+          "exceptions": {
+            "ReadableStream received over RPC disconnected prematurely.": 10
+          },
+          "sample": {
+            "time": "2026-09-07T01:22:06.376502+00:00",
+            "cfRay": "a371e686beb155c2-SJC",
+            "wireHex": "7b226f6b223a747275657d",
+            "decodedBody": "{\"ok\":true}"
+          }
+        },
+        {
+          "route": "/no-rpc",
+          "acceptEncoding": "identity",
+          "responses": 10,
+          "intactBodies": 10,
+          "httpStatuses": {
+            "200": 10
+          },
+          "contentEncodings": {
+            "identity": 10
+          },
+          "wireByteCounts": {
+            "11": 10
+          },
+          "workerOutcomes": {
+            "ok": 10
+          },
+          "exceptions": {},
+          "sample": {
+            "time": "2026-09-07T01:22:06.490737+00:00",
+            "cfRay": "a371e687f958f037-SJC",
+            "wireHex": "7b226f6b223a747275657d",
+            "decodedBody": "{\"ok\":true}"
+          }
+        }
+      ]
+    }
+  ]
+}

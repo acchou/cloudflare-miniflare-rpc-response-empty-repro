@@ -1,0 +1,12 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "rpc-gzip-repro-caller",
+  "main": "caller.mjs",
+  "compatibility_date": "2026-04-09",
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true, "head_sampling_rate": 1 },
+  "services": [
+    { "binding": "CALLEE", "service": "rpc-gzip-repro-callee" }
+  ]
+}

@@ -1,9 +1,11 @@
 import assert from "node:assert/strict";
-import { get } from "node:http";
+import { get as getHttp } from "node:http";
+import { get as getHttps } from "node:https";
 import { test } from "node:test";
 import { gunzipSync } from "node:zlib";
 
 const baseUrl = process.env.REPRO_URL ?? "http://127.0.0.1:8080";
+const get = new URL(baseUrl).protocol === "https:" ? getHttps : getHttp;
 const routes = [
   ["RPC Response survives await + gzip", "/", "gzip"],
   ["control: no await", "/no-await", "gzip"],
