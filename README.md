@@ -8,8 +8,10 @@ In Node's `fetch`, this appears as an empty body. A strict gzip decoder rejects 
 Wrangler `4.129.0`. This repo pins those versions. Local tests need no Cloudflare
 account, credentials, deployment, or application dependencies.
 
-**Deployed experiments now completed:** all 160 HTTPS responses were intact, but
-40 `/no-gzip` invocations logged an RPC-stream exception. See
+**Also reproduced intermittently on deployed Workers on September 7, 2026.**
+A follow-up experiment captured HTTP 200 with only a gzip header, as well as
+empty identity responses. Both wrapped and original no-gzip Responses returned
+complete bodies but logged stream exceptions. See
 [deployed results](#deployed-workers-experiment).
 
 ## Quick reproduction with Wrangler
@@ -88,19 +90,31 @@ return response;
 
 The [callee](workerd/callee.mjs) simply returns `Response.json({ ok: true })`.
 
-**Expected while affected: exit 1, one failed test and three passing controls.**
+**Expected while affected: exit 1, one failed test and four passing controls.**
 The probe checks HTTP status, encoding, strict decompression, and the exact JSON
-value for every route. It has a 10-second request deadline. Exit 0 means all four
+value for every route. It has a 10-second request deadline. Exit 0 means all five
 cases passed; a startup, connection, or control failure is not evidence of this bug.
 Each case uses a fresh connection so the broken response cannot contaminate the
 following controls through connection reuse.
 
-| Route | RPC | Timer await | Gzip | Expected while affected |
-| --- | --- | --- | --- | --- |
-| `/` | Yes | Yes | Yes | Fails |
-| `/no-await` | Yes | No | Yes | Passes |
-| `/no-gzip` | Yes | Yes | No | Passes |
-| `/no-rpc` | No | Yes | Yes | Passes |
+| Route | RPC | Timer await | Wrap Response | Set gzip header | Expected body while affected |
+| --- | --- | --- | --- | --- | --- |
+| `/` | Yes | Yes | Yes | Yes | Fails |
+| `/no-await` | Yes | No | Yes | Yes | Passes |
+| `/no-gzip` | Yes | Yes | No | No | Passes |
+| `/wrapped-no-gzip` | Yes | Yes | Yes | No | Passes |
+| `/no-rpc` | No | Yes | Yes | Yes | Passes |
+
+`/no-gzip` preserves the original control, which skips both wrapping and gzip.
+`/wrapped-no-gzip` adds `new Response(response.body, response)` without setting
+`Content-Encoding`. Comparing these two isolates wrapping; comparing the wrapped
+control with `/` isolates setting the gzip header.
+
+On September 7, both no-gzip variants returned complete bodies on 20/20 local
+requests each (10 per compatibility date). Each also logged 20 stream errors.
+Wrapping alone did not change either result. Each route ran in its own workerd
+process to attribute the log count. The five-case Node probe had one failure and
+four passing controls.
 
 The failed case reports 10 raw wire bytes:
 
@@ -131,7 +145,7 @@ ownership or lifetime bug.
 | Wrangler | `4.129.0` | One failure, three passing controls; bundles workerd `1.20260903.1` |
 
 The three pure-workerd rows were rerun on September 6. After adding `/no-rpc` and
-strict byte validation, the current probe was run three times against
+strict byte validation, the then-four-case probe was run three times against
 `1.20260906.1`: every run had exactly one failure and three passing controls. It
 also passed all four cases on `1.20260804.1`. The first-bad/last-good versions bound
 the regression; they do not identify the introducing commit.
@@ -150,52 +164,80 @@ with ownership transferred to the recipient. It also documents that
 setting `Content-Encoding: gzip` asks the runtime to compress the body. The example
 uses those APIs without consuming, canceling, or disposing the received body.
 
-The **truncated-body failure is reproduced locally**. The deployed experiment
-below returned complete bodies on every request, but reported stream exceptions
-on `/no-gzip`. These are distinct observed behaviors; the identical error text
-does not establish an identical root cause. Targeted upstream searches on
-September 6 found no exact report.
+The **truncated-body failure is reproduced locally and intermittently on deployed
+Workers**. Stream exceptions also occur with complete bodies on both no-gzip
+variants. The matching error text and truncated gzip symptom support a related
+stream failure, but do not identify the exact root cause. Targeted upstream
+searches on September 6 found no exact report.
 
 ## Deployed Workers experiment
 
-Tested September 7, 2026 UTC (September 6 Pacific) through the SJC edge. Two
-isolated Workers ran the same `workerd/caller.mjs` and `workerd/callee.mjs`, with
-no storage, application bindings, or secrets. A 404 fetch handler was added to
-the callee because deployment requires an event handler; its RPC method is unchanged.
-Both Workers were tested with compatibility dates `2026-04-09` and `2026-09-06`,
-with no compatibility flags. Cloudflare manages the deployed runtime build;
-these dates and the recorded deployment version IDs do not identify a workerd binary.
+Tested September 7, 2026 through the SJC edge, using isolated Workers with no
+storage, application bindings, or secrets. They ran the repo's caller and callee.
+Both compatibility dates `2026-04-09` and `2026-09-06` were tested, without
+compatibility flags. Cloudflare manages the deployed runtime build; compatibility
+dates and deployment IDs do not identify a workerd binary.
 
-For each date: 10 sequential requests per route with `Accept-Encoding: gzip`,
-and 10 with `Accept-Encoding: identity`. curl preserved the compressed body;
-strict gzip decompression and exact JSON equality checked the response. Every
-request was matched to its Worker tail event using CF-Ray.
+### Wrapping comparison and deployed truncation
+
+The original `/no-gzip` control skipped both wrapping and compression. The new
+`/wrapped-no-gzip` control isolates wrapping while keeping RPC, the timer await,
+and the absence of the gzip header identical. **Wrapping alone did not prevent
+stream errors or change the complete client body in these tests.**
+
+The primary follow-up comparison comprises 200 requests: 10 per route, client
+`Accept-Encoding` (`gzip` or `identity`), and compatibility date. A separate
+Worker pair for the second date avoided mixing deployments during propagation.
+curl preserved wire bytes; strict gzip decoding and exact body comparison checked
+for `{"ok":true}`. Of 200 requests, 191 were matched by CF-Ray to tail events with
+the expected caller deployment ID; nine events were not captured.
 
 | Route | Complete HTTP 200 bodies | Worker outcomes |
 | --- | --- | --- |
-| `/` (RPC + await + gzip) | 40/40 | 40 `ok` |
-| `/no-await` | 40/40 | 40 `ok` |
-| `/no-gzip` | 40/40 | 40 `exception` |
+| `/` (RPC + await + wrap + gzip header) | 27/40 | 26 `ok`, 12 `exception`, 2 unmatched |
+| `/no-await` | 40/40 | 38 `ok`, 2 unmatched |
+| `/no-gzip` (original Response) | 40/40 | 37 `exception`, 3 unmatched |
+| `/wrapped-no-gzip` | 40/40 | 37 `exception`, 1 `ok`, 2 unmatched |
 | `/no-rpc` | 40/40 | 40 `ok` |
 
-For gzip requests, `/`, `/no-await`, and `/no-rpc` returned valid 31-byte gzip
-streams; `/no-gzip` returned 11 uncompressed bytes. Identity requests returned
-11 uncompressed bytes on all routes. Every decoded body was `{"ok":true}`.
-Every `/no-gzip` exception was:
+Every response had HTTP status 200. On `/`, six gzip requests returned only the
+10-byte gzip header `1f8b0800000000000003`; seven identity requests returned zero
+bytes. Four failures occurred with the April date and nine with the September
+date. All 12 failures with a captured tail event reported:
 
 ```text
 ReadableStream received over RPC disconnected prematurely.
 ```
 
-Therefore, **the local empty-body symptom did not reproduce on deployed Workers
-in this experiment, while a stream exception did**. Successful client responses
-alone would have missed that second result. This is evidence for the tested
-11-byte payload, routes, dates, and region, not a claim about all deployed workloads.
+The thirteenth failure had no captured tail event. Both no-gzip variants always
+returned the complete 11-byte JSON body, for both client encodings. Their captured
+exceptions had the same message. The one `ok` wrapped invocation does not establish
+a reliable improvement; exceptions persisted with wrapping on both dates.
 
-[Sanitized results](evidence/deployed-2026-09-07.json) include counts, raw-byte
-samples, correlated request IDs, and deployment version IDs. Preliminary Python
-HTTP-client requests received edge rejection code 1010 before reaching the Worker;
-those requests are excluded. Both temporary Workers were removed after testing.
+**The local truncation symptom now also has a deployed reproduction.** Setting
+`Content-Encoding: gzip` on the Worker Response was still part of every truncated
+case, including those where the client requested identity. Client identity alone
+therefore did not reliably avoid this deployed failure. The exact runtime cause
+and the relationship to exceptions accompanying complete bodies remain unresolved.
+These results cover this payload, code, dates, and region; the observed failure
+fractions are not estimates of a general production failure rate.
+
+[Wrapping experiment evidence](evidence/wrapping-2026-09-07.json) records local
+results, deployment IDs, per-case counts, raw-byte samples, failed responses, and
+correlated outcomes. It also retains two exploratory batches outside the primary
+table: an initial 100 requests lost raw metadata for three failed gzip decodes,
+and another 100 crossed a deployment transition (five events used the earlier
+caller version). Missing evidence is marked explicitly. All temporary Workers
+were deleted after testing.
+
+### Earlier baseline
+
+An earlier experiment on September 7 UTC (September 6 Pacific) returned intact
+bodies on all 160 requests and exceptions on all 40 `/no-gzip` invocations. That
+observation is preserved in the [original evidence](evidence/deployed-2026-09-07.json).
+It did not include the wrapped no-gzip control. The later captured truncations
+supersede the earlier assessment that this symptom had only reproduced locally.
+The experiments do not establish why the failure frequency changed.
 
 ### Repeat on your Cloudflare account
 
@@ -221,18 +263,21 @@ In another terminal, use the HTTPS URL printed by deployment:
 REPRO_URL=https://YOUR-CALLER.YOUR-SUBDOMAIN.workers.dev pnpm workerd:probe
 ```
 
-The current deployed result is **all four client assertions pass**, while the
-`/no-gzip` tail event reports an exception. Keep the tail output when reporting
-results. The probe explicitly requests gzip; to inspect the identity control:
+The probe now has five cases. The `/` assertion can fail intermittently on
+deployed Workers; a single all-pass run does not rule out the bug. Both no-gzip
+cases can report stream exceptions despite passing the client assertion. Keep
+the tail output alongside response bytes. The probe explicitly requests gzip;
+to inspect the identity behavior on the affected route:
 
 ```sh
 curl --http1.1 -i -H 'Accept-Encoding: identity' \
-  https://YOUR-CALLER.YOUR-SUBDOMAIN.workers.dev/no-gzip
+  https://YOUR-CALLER.YOUR-SUBDOMAIN.workers.dev/
 ```
 
-To compare dates, deploy **both** Workers again with
-`--compatibility-date 2026-09-06` and repeat. Remove the caller first, then its
-RPC dependency, when finished:
+To compare dates, use a separately named Worker pair with the other date and
+update its service binding. Reusing names can briefly mix old and new deployments;
+check the tail version IDs before attributing results to a date. Remove each
+caller first, then its RPC dependency, when finished:
 
 ```sh
 pnpm exec wrangler delete --config workerd/wrangler.caller.jsonc
@@ -248,6 +293,9 @@ pnpm exec wrangler delete --config workerd/wrangler.callee.jsonc
   Response, as the `/materialized` control does. This sacrifices streaming and
   increases memory use for large responses.
 - **Avoid gzip on this path:** use `Accept-Encoding: identity` in the Wrangler
-  client, or omit gzip encoding in the pure example. This changes compression.
+  client, or omit the gzip header in the pure example. Both no-gzip variants
+  delivered complete bodies in these tests but still logged stream exceptions.
+  Client identity alone did not reliably avoid deployed truncation when the
+  Worker still set the gzip header.
 - **Older runtime:** `1.20260804.1` is a known passing comparison. Downgrading is
   useful for regression diagnosis, not a general recommendation to stay on old tooling.

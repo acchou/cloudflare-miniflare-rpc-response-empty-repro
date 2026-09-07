@@ -11,6 +11,9 @@ export default {
 
     if (pathname !== "/no-gzip") {
       response = new Response(response.body, response);
+    }
+
+    if (pathname !== "/no-gzip" && pathname !== "/wrapped-no-gzip") {
       response.headers.set("Content-Encoding", "gzip");
     }
 

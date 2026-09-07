@@ -1,0 +1,1665 @@
+{
+  "testedAt": "2026-09-07",
+  "workerd": "1.20260906.1",
+  "wrangler": "4.129.0",
+  "region": "SJC",
+  "httpVersion": "HTTP/1.1",
+  "notes": [
+    "Each batch has 10 requests per route and client Accept-Encoding, without retries.",
+    "The initial April batch lost raw bytes and CF-Ray for three failed gzip decodes; retained as preliminary evidence.",
+    "Tail events are correlated by CF-Ray. Unmatched events are recorded, not inferred.",
+    "Compatibility dates and deployment IDs do not identify the managed runtime binary.",
+    "The september batch crossed a deployment transition: 5 caller events used the April version and 95 used the September version. It is excluded from the primary comparison.",
+    "The primary comparison uses april-repeat and sep: 200 requests with complete response metadata; 191 tail events matched the expected caller versions, and 9 were not captured. The sep batch used a separately named Worker pair to avoid a date transition."
+  ],
+  "local": [
+    {
+      "compatibilityDate": "2026-04-09",
+      "route": "/",
+      "streamErrorCount": 10,
+      "requests": 10,
+      "intactBodies": 0,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 10,
+        "wireHex": "1f8b0800000000000013",
+        "passed": false,
+        "error": "Compressed file ended before the end-of-stream marker was reached"
+      }
+    },
+    {
+      "compatibilityDate": "2026-04-09",
+      "route": "/no-await",
+      "streamErrorCount": 0,
+      "requests": 10,
+      "intactBodies": 10,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 31,
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "body": "{\"ok\":true}",
+        "passed": true
+      }
+    },
+    {
+      "compatibilityDate": "2026-04-09",
+      "route": "/no-gzip",
+      "streamErrorCount": 10,
+      "requests": 10,
+      "intactBodies": 10,
+      "sample": {
+        "status": 200,
+        "encoding": null,
+        "wireBytes": 11,
+        "wireHex": "7b226f6b223a747275657d",
+        "body": "{\"ok\":true}",
+        "passed": true
+      }
+    },
+    {
+      "compatibilityDate": "2026-04-09",
+      "route": "/wrapped-no-gzip",
+      "streamErrorCount": 10,
+      "requests": 10,
+      "intactBodies": 10,
+      "sample": {
+        "status": 200,
+        "encoding": null,
+        "wireBytes": 11,
+        "wireHex": "7b226f6b223a747275657d",
+        "body": "{\"ok\":true}",
+        "passed": true
+      }
+    },
+    {
+      "compatibilityDate": "2026-04-09",
+      "route": "/no-rpc",
+      "streamErrorCount": 0,
+      "requests": 10,
+      "intactBodies": 10,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 31,
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "body": "{\"ok\":true}",
+        "passed": true
+      }
+    },
+    {
+      "compatibilityDate": "2026-09-06",
+      "route": "/",
+      "streamErrorCount": 10,
+      "requests": 10,
+      "intactBodies": 0,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 10,
+        "wireHex": "1f8b0800000000000013",
+        "passed": false,
+        "error": "Compressed file ended before the end-of-stream marker was reached"
+      }
+    },
+    {
+      "compatibilityDate": "2026-09-06",
+      "route": "/no-await",
+      "streamErrorCount": 0,
+      "requests": 10,
+      "intactBodies": 10,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 31,
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "body": "{\"ok\":true}",
+        "passed": true
+      }
+    },
+    {
+      "compatibilityDate": "2026-09-06",
+      "route": "/no-gzip",
+      "streamErrorCount": 10,
+      "requests": 10,
+      "intactBodies": 10,
+      "sample": {
+        "status": 200,
+        "encoding": null,
+        "wireBytes": 11,
+        "wireHex": "7b226f6b223a747275657d",
+        "body": "{\"ok\":true}",
+        "passed": true
+      }
+    },
+    {
+      "compatibilityDate": "2026-09-06",
+      "route": "/wrapped-no-gzip",
+      "streamErrorCount": 10,
+      "requests": 10,
+      "intactBodies": 10,
+      "sample": {
+        "status": 200,
+        "encoding": null,
+        "wireBytes": 11,
+        "wireHex": "7b226f6b223a747275657d",
+        "body": "{\"ok\":true}",
+        "passed": true
+      }
+    },
+    {
+      "compatibilityDate": "2026-09-06",
+      "route": "/no-rpc",
+      "streamErrorCount": 0,
+      "requests": 10,
+      "intactBodies": 10,
+      "sample": {
+        "status": 200,
+        "encoding": "gzip",
+        "wireBytes": 31,
+        "wireHex": "1f8b0800000000000013ab56cacf56b22a292a4dad0500905fd4a70b000000",
+        "body": "{\"ok\":true}",
+        "passed": true
+      }
+    }
+  ],
+  "deployed": [
+    {
+      "batch": "april",
+      "primaryComparison": false,
+      "compatibilityDate": "2026-04-09",
+      "versions": {
+        "caller": "7ad6b885-0d6e-49e6-b600-6235cbfa7831",
+        "callee": "2cc494d2-533c-4b3f-ab44-09c8767c735d"
+      },
+      "cases": [
+        {
+          "route": "/",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 7,
+          "outcomes": {
+            "ok": 7,
+            "unmatched": 3
+          },
+          "streamExceptions": 0,
+          "sample": {
+            "iteration": 0,
+            "route": "/",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:03:38.978944+00:00",
+            "status": 200,
+            "encoding": "gzip",
+            "wireBytes": 31,
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375ea2d5cda26d3-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": [
+            {
+              "iteration": 1,
+              "route": "/",
+              "acceptEncoding": "gzip",
+              "time": "2026-09-07T13:03:40.014059+00:00",
+              "passed": false,
+              "error": "Compressed file ended before the end-of-stream marker was reached",
+              "cfRay": "",
+              "outcome": "unmatched",
+              "exceptions": [],
+              "workerVersion": null
+            },
+            {
+              "iteration": 6,
+              "route": "/",
+              "acceptEncoding": "gzip",
+              "time": "2026-09-07T13:03:44.631307+00:00",
+              "passed": false,
+              "error": "Compressed file ended before the end-of-stream marker was reached",
+              "cfRay": "",
+              "outcome": "unmatched",
+              "exceptions": [],
+              "workerVersion": null
+            },
+            {
+              "iteration": 9,
+              "route": "/",
+              "acceptEncoding": "gzip",
+              "time": "2026-09-07T13:03:47.537550+00:00",
+              "passed": false,
+              "error": "Compressed file ended before the end-of-stream marker was reached",
+              "cfRay": "",
+              "outcome": "unmatched",
+              "exceptions": [],
+              "workerVersion": null
+            }
+          ]
+        },
+        {
+          "route": "/no-await",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "ok": 10
+          },
+          "streamExceptions": 0,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-await",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:03:39.116498+00:00",
+            "status": 200,
+            "encoding": "gzip",
+            "wireBytes": 31,
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375ea2dfb78dfce-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/no-gzip",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "ok": 2,
+            "exception": 8
+          },
+          "streamExceptions": 8,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-gzip",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:03:39.208697+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375ea2e8eea71e7-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/wrapped-no-gzip",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "unmatched": 1,
+            "exception": 9
+          },
+          "streamExceptions": 9,
+          "sample": {
+            "iteration": 0,
+            "route": "/wrapped-no-gzip",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:03:39.310296+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375ea2f2eb67ad9-SJC",
+            "outcome": "unmatched",
+            "exceptions": [],
+            "workerVersion": null
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/no-rpc",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "ok": 10
+          },
+          "streamExceptions": 0,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-rpc",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:03:39.415498+00:00",
+            "status": 200,
+            "encoding": "gzip",
+            "wireBytes": 31,
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375ea2fdc29981a-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 9,
+          "outcomes": {
+            "ok": 9,
+            "exception": 1
+          },
+          "streamExceptions": 1,
+          "sample": {
+            "iteration": 0,
+            "route": "/",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:03:39.507202+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375ea30684e2c47-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": [
+            {
+              "iteration": 5,
+              "route": "/",
+              "acceptEncoding": "identity",
+              "time": "2026-09-07T13:03:44.150356+00:00",
+              "status": 200,
+              "encoding": null,
+              "wireBytes": 0,
+              "wireHex": "",
+              "body": "",
+              "passed": false,
+              "cfRay": "a375ea4d6ba52287-SJC",
+              "outcome": "exception",
+              "exceptions": [
+                "ReadableStream received over RPC disconnected prematurely."
+              ],
+              "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+            }
+          ]
+        },
+        {
+          "route": "/no-await",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "ok": 10
+          },
+          "streamExceptions": 0,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-await",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:03:39.620778+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375ea312ef11422-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/no-gzip",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "exception": 9,
+            "unmatched": 1
+          },
+          "streamExceptions": 9,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-gzip",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:03:39.729190+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375ea31cd6edf5d-SJC",
+            "outcome": "exception",
+            "exceptions": [
+              "ReadableStream received over RPC disconnected prematurely."
+            ],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/wrapped-no-gzip",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "exception": 10
+          },
+          "streamExceptions": 10,
+          "sample": {
+            "iteration": 0,
+            "route": "/wrapped-no-gzip",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:03:39.824978+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375ea326e68cc7e-SJC",
+            "outcome": "exception",
+            "exceptions": [
+              "ReadableStream received over RPC disconnected prematurely."
+            ],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/no-rpc",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "ok": 9,
+            "unmatched": 1
+          },
+          "streamExceptions": 0,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-rpc",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:03:39.923868+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375ea330d0dcf13-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": []
+        }
+      ]
+    },
+    {
+      "batch": "april-repeat",
+      "primaryComparison": true,
+      "compatibilityDate": "2026-04-09",
+      "versions": {
+        "caller": "7ad6b885-0d6e-49e6-b600-6235cbfa7831",
+        "callee": "2cc494d2-533c-4b3f-ab44-09c8767c735d"
+      },
+      "cases": [
+        {
+          "route": "/",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 9,
+          "outcomes": {
+            "ok": 9,
+            "exception": 1
+          },
+          "streamExceptions": 1,
+          "sample": {
+            "iteration": 0,
+            "route": "/",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:04:20.917313+00:00",
+            "status": 200,
+            "encoding": "gzip",
+            "wireBytes": 31,
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375eb331f7a23fd-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": [
+            {
+              "iteration": 6,
+              "route": "/",
+              "acceptEncoding": "gzip",
+              "time": "2026-09-07T13:04:26.319639+00:00",
+              "status": 200,
+              "encoding": "gzip",
+              "wireBytes": 10,
+              "wireHex": "1f8b0800000000000003",
+              "passed": false,
+              "error": "Compressed file ended before the end-of-stream marker was reached",
+              "cfRay": "a375eb54f92ccb6f-SJC",
+              "outcome": "exception",
+              "exceptions": [
+                "ReadableStream received over RPC disconnected prematurely."
+              ],
+              "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+            }
+          ]
+        },
+        {
+          "route": "/no-await",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "ok": 10
+          },
+          "streamExceptions": 0,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-await",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:04:20.994506+00:00",
+            "status": 200,
+            "encoding": "gzip",
+            "wireBytes": 31,
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375eb33a805483d-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/no-gzip",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "exception": 10
+          },
+          "streamExceptions": 10,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-gzip",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:04:21.085642+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375eb342ca8de42-SJC",
+            "outcome": "exception",
+            "exceptions": [
+              "ReadableStream received over RPC disconnected prematurely."
+            ],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/wrapped-no-gzip",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "exception": 9,
+            "ok": 1
+          },
+          "streamExceptions": 9,
+          "sample": {
+            "iteration": 0,
+            "route": "/wrapped-no-gzip",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:04:21.159190+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375eb34bc15ebeb-SJC",
+            "outcome": "exception",
+            "exceptions": [
+              "ReadableStream received over RPC disconnected prematurely."
+            ],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/no-rpc",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "ok": 10
+          },
+          "streamExceptions": 0,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-rpc",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:04:21.246781+00:00",
+            "status": 200,
+            "encoding": "gzip",
+            "wireBytes": 31,
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375eb354d1e3e8e-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 7,
+          "outcomes": {
+            "ok": 7,
+            "exception": 3
+          },
+          "streamExceptions": 3,
+          "sample": {
+            "iteration": 0,
+            "route": "/",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:04:21.342531+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375eb35dde96ce3-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": [
+            {
+              "iteration": 3,
+              "route": "/",
+              "acceptEncoding": "identity",
+              "time": "2026-09-07T13:04:24.088002+00:00",
+              "status": 200,
+              "encoding": null,
+              "wireBytes": 0,
+              "wireHex": "",
+              "body": "",
+              "passed": false,
+              "cfRay": "a375eb470e24f9cc-SJC",
+              "outcome": "exception",
+              "exceptions": [
+                "ReadableStream received over RPC disconnected prematurely."
+              ],
+              "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+            },
+            {
+              "iteration": 5,
+              "route": "/",
+              "acceptEncoding": "identity",
+              "time": "2026-09-07T13:04:25.886960+00:00",
+              "status": 200,
+              "encoding": null,
+              "wireBytes": 0,
+              "wireHex": "",
+              "body": "",
+              "passed": false,
+              "cfRay": "a375eb524c9d14b6-SJC",
+              "outcome": "exception",
+              "exceptions": [
+                "ReadableStream received over RPC disconnected prematurely."
+              ],
+              "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+            },
+            {
+              "iteration": 7,
+              "route": "/",
+              "acceptEncoding": "identity",
+              "time": "2026-09-07T13:04:27.587283+00:00",
+              "status": 200,
+              "encoding": null,
+              "wireBytes": 0,
+              "wireHex": "",
+              "body": "",
+              "passed": false,
+              "cfRay": "a375eb5cdeedce68-SJC",
+              "outcome": "exception",
+              "exceptions": [
+                "ReadableStream received over RPC disconnected prematurely."
+              ],
+              "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+            }
+          ]
+        },
+        {
+          "route": "/no-await",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "ok": 10
+          },
+          "streamExceptions": 0,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-await",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:04:21.426235+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375eb36692a0653-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/no-gzip",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "exception": 10
+          },
+          "streamExceptions": 10,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-gzip",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:04:21.515822+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375eb36f97ffc53-SJC",
+            "outcome": "exception",
+            "exceptions": [
+              "ReadableStream received over RPC disconnected prematurely."
+            ],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/wrapped-no-gzip",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "exception": 10
+          },
+          "streamExceptions": 10,
+          "sample": {
+            "iteration": 0,
+            "route": "/wrapped-no-gzip",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:04:21.604295+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375eb3778cf8462-SJC",
+            "outcome": "exception",
+            "exceptions": [
+              "ReadableStream received over RPC disconnected prematurely."
+            ],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/no-rpc",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "ok": 10
+          },
+          "streamExceptions": 0,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-rpc",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:04:21.694583+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375eb382f9850a1-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+          },
+          "failedResponses": []
+        }
+      ]
+    },
+    {
+      "batch": "september",
+      "primaryComparison": false,
+      "compatibilityDate": "2026-09-06",
+      "versions": {
+        "caller": "f793b3ae-d720-4936-937d-07aafe2ca824",
+        "callee": "8ced86fd-ae94-4f80-86ba-adbf3cfb25cc"
+      },
+      "cases": [
+        {
+          "route": "/",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 9,
+          "outcomes": {
+            "ok": 9,
+            "exception": 1
+          },
+          "streamExceptions": 1,
+          "sample": {
+            "iteration": 0,
+            "route": "/",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:05:25.429354+00:00",
+            "status": 200,
+            "encoding": "gzip",
+            "wireBytes": 31,
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375ecc658ba1587-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "f793b3ae-d720-4936-937d-07aafe2ca824"
+          },
+          "failedResponses": [
+            {
+              "iteration": 1,
+              "route": "/",
+              "acceptEncoding": "gzip",
+              "time": "2026-09-07T13:05:26.365246+00:00",
+              "status": 200,
+              "encoding": "gzip",
+              "wireBytes": 10,
+              "wireHex": "1f8b0800000000000003",
+              "passed": false,
+              "error": "Compressed file ended before the end-of-stream marker was reached",
+              "cfRay": "a375eccc3a31d116-SJC",
+              "outcome": "exception",
+              "exceptions": [
+                "ReadableStream received over RPC disconnected prematurely."
+              ],
+              "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+            }
+          ]
+        },
+        {
+          "route": "/no-await",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "ok": 10
+          },
+          "streamExceptions": 0,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-await",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:05:25.535046+00:00",
+            "status": 200,
+            "encoding": "gzip",
+            "wireBytes": 31,
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375ecc7184567ac-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "f793b3ae-d720-4936-937d-07aafe2ca824"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/no-gzip",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "exception": 10
+          },
+          "streamExceptions": 10,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-gzip",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:05:25.636149+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375ecc7baa8a661-SJC",
+            "outcome": "exception",
+            "exceptions": [
+              "ReadableStream received over RPC disconnected prematurely."
+            ],
+            "workerVersion": "f793b3ae-d720-4936-937d-07aafe2ca824"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/wrapped-no-gzip",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "exception": 10
+          },
+          "streamExceptions": 10,
+          "sample": {
+            "iteration": 0,
+            "route": "/wrapped-no-gzip",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:05:25.742392+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375ecc85809354e-SJC",
+            "outcome": "exception",
+            "exceptions": [
+              "ReadableStream received over RPC disconnected prematurely."
+            ],
+            "workerVersion": "f793b3ae-d720-4936-937d-07aafe2ca824"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/no-rpc",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "ok": 10
+          },
+          "streamExceptions": 0,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-rpc",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:05:25.832688+00:00",
+            "status": 200,
+            "encoding": "gzip",
+            "wireBytes": 31,
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375ecc8ec53eb22-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "f793b3ae-d720-4936-937d-07aafe2ca824"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 9,
+          "outcomes": {
+            "ok": 9,
+            "exception": 1
+          },
+          "streamExceptions": 1,
+          "sample": {
+            "iteration": 0,
+            "route": "/",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:05:25.918483+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375ecc98cf2d4f9-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "f793b3ae-d720-4936-937d-07aafe2ca824"
+          },
+          "failedResponses": [
+            {
+              "iteration": 8,
+              "route": "/",
+              "acceptEncoding": "identity",
+              "time": "2026-09-07T13:05:33.021047+00:00",
+              "status": 200,
+              "encoding": null,
+              "wireBytes": 0,
+              "wireHex": "",
+              "body": "",
+              "passed": false,
+              "cfRay": "a375ecf5da79f8f3-SJC",
+              "outcome": "exception",
+              "exceptions": [
+                "ReadableStream received over RPC disconnected prematurely."
+              ],
+              "workerVersion": "7ad6b885-0d6e-49e6-b600-6235cbfa7831"
+            }
+          ]
+        },
+        {
+          "route": "/no-await",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "ok": 10
+          },
+          "streamExceptions": 0,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-await",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:05:26.028893+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375ecca2a219d09-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "f793b3ae-d720-4936-937d-07aafe2ca824"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/no-gzip",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "exception": 10
+          },
+          "streamExceptions": 10,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-gzip",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:05:26.115743+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375eccaafb74f1b-SJC",
+            "outcome": "exception",
+            "exceptions": [
+              "ReadableStream received over RPC disconnected prematurely."
+            ],
+            "workerVersion": "f793b3ae-d720-4936-937d-07aafe2ca824"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/wrapped-no-gzip",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "exception": 9,
+            "ok": 1
+          },
+          "streamExceptions": 9,
+          "sample": {
+            "iteration": 0,
+            "route": "/wrapped-no-gzip",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:05:26.196000+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375eccb3e713e8e-SJC",
+            "outcome": "exception",
+            "exceptions": [
+              "ReadableStream received over RPC disconnected prematurely."
+            ],
+            "workerVersion": "f793b3ae-d720-4936-937d-07aafe2ca824"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/no-rpc",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "ok": 10
+          },
+          "streamExceptions": 0,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-rpc",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:05:26.281331+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375eccbbe1ba709-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "f793b3ae-d720-4936-937d-07aafe2ca824"
+          },
+          "failedResponses": []
+        }
+      ]
+    },
+    {
+      "batch": "sep",
+      "primaryComparison": true,
+      "compatibilityDate": "2026-09-06",
+      "versions": {
+        "caller": "43afe514-f0ff-43d7-a1c6-e06ef2a0c784",
+        "callee": "52b31687-dc0b-4202-b240-069434958578"
+      },
+      "cases": [
+        {
+          "route": "/",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 5,
+          "outcomes": {
+            "ok": 5,
+            "exception": 5
+          },
+          "streamExceptions": 5,
+          "sample": {
+            "iteration": 0,
+            "route": "/",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:07:47.943753+00:00",
+            "status": 200,
+            "encoding": "gzip",
+            "wireBytes": 31,
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375f0415e6b7b82-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "43afe514-f0ff-43d7-a1c6-e06ef2a0c784"
+          },
+          "failedResponses": [
+            {
+              "iteration": 2,
+              "route": "/",
+              "acceptEncoding": "gzip",
+              "time": "2026-09-07T13:07:49.975409+00:00",
+              "status": 200,
+              "encoding": "gzip",
+              "wireBytes": 10,
+              "wireHex": "1f8b0800000000000003",
+              "passed": false,
+              "error": "Compressed file ended before the end-of-stream marker was reached",
+              "cfRay": "a375f04ddfeeccb8-SJC",
+              "outcome": "exception",
+              "exceptions": [
+                "ReadableStream received over RPC disconnected prematurely."
+              ],
+              "workerVersion": "43afe514-f0ff-43d7-a1c6-e06ef2a0c784"
+            },
+            {
+              "iteration": 3,
+              "route": "/",
+              "acceptEncoding": "gzip",
+              "time": "2026-09-07T13:07:50.851352+00:00",
+              "status": 200,
+              "encoding": "gzip",
+              "wireBytes": 10,
+              "wireHex": "1f8b0800000000000003",
+              "passed": false,
+              "error": "Compressed file ended before the end-of-stream marker was reached",
+              "cfRay": "a375f053380ccfb8-SJC",
+              "outcome": "exception",
+              "exceptions": [
+                "ReadableStream received over RPC disconnected prematurely."
+              ],
+              "workerVersion": "43afe514-f0ff-43d7-a1c6-e06ef2a0c784"
+            },
+            {
+              "iteration": 5,
+              "route": "/",
+              "acceptEncoding": "gzip",
+              "time": "2026-09-07T13:07:52.493886+00:00",
+              "status": 200,
+              "encoding": "gzip",
+              "wireBytes": 10,
+              "wireHex": "1f8b0800000000000003",
+              "passed": false,
+              "error": "Compressed file ended before the end-of-stream marker was reached",
+              "cfRay": "a375f05d8b8da249-SJC",
+              "outcome": "exception",
+              "exceptions": [
+                "ReadableStream received over RPC disconnected prematurely."
+              ],
+              "workerVersion": "43afe514-f0ff-43d7-a1c6-e06ef2a0c784"
+            },
+            {
+              "iteration": 7,
+              "route": "/",
+              "acceptEncoding": "gzip",
+              "time": "2026-09-07T13:07:54.385427+00:00",
+              "status": 200,
+              "encoding": "gzip",
+              "wireBytes": 10,
+              "wireHex": "1f8b0800000000000003",
+              "passed": false,
+              "error": "Compressed file ended before the end-of-stream marker was reached",
+              "cfRay": "a375f0695fcc3708-SJC",
+              "outcome": "exception",
+              "exceptions": [
+                "ReadableStream received over RPC disconnected prematurely."
+              ],
+              "workerVersion": "43afe514-f0ff-43d7-a1c6-e06ef2a0c784"
+            },
+            {
+              "iteration": 9,
+              "route": "/",
+              "acceptEncoding": "gzip",
+              "time": "2026-09-07T13:07:56.063156+00:00",
+              "status": 200,
+              "encoding": "gzip",
+              "wireBytes": 10,
+              "wireHex": "1f8b0800000000000003",
+              "passed": false,
+              "error": "Compressed file ended before the end-of-stream marker was reached",
+              "cfRay": "a375f073deff2546-SJC",
+              "outcome": "exception",
+              "exceptions": [
+                "ReadableStream received over RPC disconnected prematurely."
+              ],
+              "workerVersion": "43afe514-f0ff-43d7-a1c6-e06ef2a0c784"
+            }
+          ]
+        },
+        {
+          "route": "/no-await",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "ok": 10
+          },
+          "streamExceptions": 0,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-await",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:07:48.079850+00:00",
+            "status": 200,
+            "encoding": "gzip",
+            "wireBytes": 31,
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375f041ec8e2519-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "43afe514-f0ff-43d7-a1c6-e06ef2a0c784"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/no-gzip",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "unmatched": 2,
+            "exception": 8
+          },
+          "streamExceptions": 8,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-gzip",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:07:48.206153+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375f042cd8e3354-SJC",
+            "outcome": "unmatched",
+            "exceptions": [],
+            "workerVersion": null
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/wrapped-no-gzip",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "unmatched": 1,
+            "exception": 9
+          },
+          "streamExceptions": 9,
+          "sample": {
+            "iteration": 0,
+            "route": "/wrapped-no-gzip",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:07:48.342058+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375f043ad988dfa-SJC",
+            "outcome": "unmatched",
+            "exceptions": [],
+            "workerVersion": null
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/no-rpc",
+          "acceptEncoding": "gzip",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "ok": 10
+          },
+          "streamExceptions": 0,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-rpc",
+            "acceptEncoding": "gzip",
+            "time": "2026-09-07T13:07:48.456322+00:00",
+            "status": 200,
+            "encoding": "gzip",
+            "wireBytes": 31,
+            "wireHex": "1f8b0800000000000003ab56cacf56b22a292a4dad0500905fd4a70b000000",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375f0446e1ceb2e-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "43afe514-f0ff-43d7-a1c6-e06ef2a0c784"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 6,
+          "outcomes": {
+            "unmatched": 2,
+            "ok": 5,
+            "exception": 3
+          },
+          "streamExceptions": 3,
+          "sample": {
+            "iteration": 0,
+            "route": "/",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:07:48.555209+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375f044ec1867b9-SJC",
+            "outcome": "unmatched",
+            "exceptions": [],
+            "workerVersion": null
+          },
+          "failedResponses": [
+            {
+              "iteration": 2,
+              "route": "/",
+              "acceptEncoding": "identity",
+              "time": "2026-09-07T13:07:50.417077+00:00",
+              "status": 200,
+              "encoding": null,
+              "wireBytes": 0,
+              "wireHex": "",
+              "body": "",
+              "passed": false,
+              "cfRay": "a375f0508d4298ce-SJC",
+              "outcome": "unmatched",
+              "exceptions": [],
+              "workerVersion": null
+            },
+            {
+              "iteration": 4,
+              "route": "/",
+              "acceptEncoding": "identity",
+              "time": "2026-09-07T13:07:52.062390+00:00",
+              "status": 200,
+              "encoding": null,
+              "wireBytes": 0,
+              "wireHex": "",
+              "body": "",
+              "passed": false,
+              "cfRay": "a375f05acf5074f9-SJC",
+              "outcome": "exception",
+              "exceptions": [
+                "ReadableStream received over RPC disconnected prematurely."
+              ],
+              "workerVersion": "43afe514-f0ff-43d7-a1c6-e06ef2a0c784"
+            },
+            {
+              "iteration": 6,
+              "route": "/",
+              "acceptEncoding": "identity",
+              "time": "2026-09-07T13:07:53.912960+00:00",
+              "status": 200,
+              "encoding": null,
+              "wireBytes": 0,
+              "wireHex": "",
+              "body": "",
+              "passed": false,
+              "cfRay": "a375f06679a4f3e8-SJC",
+              "outcome": "exception",
+              "exceptions": [
+                "ReadableStream received over RPC disconnected prematurely."
+              ],
+              "workerVersion": "43afe514-f0ff-43d7-a1c6-e06ef2a0c784"
+            },
+            {
+              "iteration": 7,
+              "route": "/",
+              "acceptEncoding": "identity",
+              "time": "2026-09-07T13:07:54.803569+00:00",
+              "status": 200,
+              "encoding": null,
+              "wireBytes": 0,
+              "wireHex": "",
+              "body": "",
+              "passed": false,
+              "cfRay": "a375f06bff63586f-SJC",
+              "outcome": "exception",
+              "exceptions": [
+                "ReadableStream received over RPC disconnected prematurely."
+              ],
+              "workerVersion": "43afe514-f0ff-43d7-a1c6-e06ef2a0c784"
+            }
+          ]
+        },
+        {
+          "route": "/no-await",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "unmatched": 2,
+            "ok": 8
+          },
+          "streamExceptions": 0,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-await",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:07:48.675976+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375f045bf0f15aa-SJC",
+            "outcome": "unmatched",
+            "exceptions": [],
+            "workerVersion": null
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/no-gzip",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "unmatched": 1,
+            "exception": 9
+          },
+          "streamExceptions": 9,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-gzip",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:07:48.779569+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375f04678b25f13-SJC",
+            "outcome": "unmatched",
+            "exceptions": [],
+            "workerVersion": null
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/wrapped-no-gzip",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "exception": 9,
+            "unmatched": 1
+          },
+          "streamExceptions": 9,
+          "sample": {
+            "iteration": 0,
+            "route": "/wrapped-no-gzip",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:07:48.899945+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375f04718fb173b-SJC",
+            "outcome": "exception",
+            "exceptions": [
+              "ReadableStream received over RPC disconnected prematurely."
+            ],
+            "workerVersion": "43afe514-f0ff-43d7-a1c6-e06ef2a0c784"
+          },
+          "failedResponses": []
+        },
+        {
+          "route": "/no-rpc",
+          "acceptEncoding": "identity",
+          "requests": 10,
+          "intactBodies": 10,
+          "outcomes": {
+            "ok": 10
+          },
+          "streamExceptions": 0,
+          "sample": {
+            "iteration": 0,
+            "route": "/no-rpc",
+            "acceptEncoding": "identity",
+            "time": "2026-09-07T13:07:49.019634+00:00",
+            "status": 200,
+            "encoding": null,
+            "wireBytes": 11,
+            "wireHex": "7b226f6b223a747275657d",
+            "body": "{\"ok\":true}",
+            "passed": true,
+            "cfRay": "a375f047bb100c97-SJC",
+            "outcome": "ok",
+            "exceptions": [],
+            "workerVersion": "43afe514-f0ff-43d7-a1c6-e06ef2a0c784"
+          },
+          "failedResponses": []
+        }
+      ]
+    }
+  ]
+}

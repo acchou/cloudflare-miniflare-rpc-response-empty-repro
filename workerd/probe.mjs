@@ -9,7 +9,8 @@ const get = new URL(baseUrl).protocol === "https:" ? getHttps : getHttp;
 const routes = [
   ["RPC Response survives await + gzip", "/", "gzip"],
   ["control: no await", "/no-await", "gzip"],
-  ["control: no gzip", "/no-gzip", undefined],
+  ["control: no gzip, original Response", "/no-gzip", undefined],
+  ["control: no gzip, wrapped Response", "/wrapped-no-gzip", undefined],
   ["control: no RPC", "/no-rpc", "gzip"]
 ];
 
